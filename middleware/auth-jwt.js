@@ -1,22 +1,23 @@
 'use strict';
 
-const { TOKEN_KEY } = require('../params');
+const db = require('../database/database');
+
 const jwt = require('jsonwebtoken');
-const users = require('../database/users');
+const { TOKEN_KEY } = require('../params');
 
 function funcReturner() {
     return func;
 }
 
-function func(request, response, next) {
+async function func(request, response, next) {
     if ('isAuthenticated' in request) {
         throw new Error();
     }
-    request.isAuthenticated = clientIsAuthenticated(request);
+    request.isAuthenticated = await clientIsAuthenticated(request);
     next();
 }
 
-function clientIsAuthenticated(request) {
+async function clientIsAuthenticated(request) {
     let authorization = request.get('authorization');
     if (authorization === undefined) return false;
 
@@ -24,17 +25,16 @@ function clientIsAuthenticated(request) {
     if (authenticationScheme !== 'Bearer') return false;
 
     let returnValue = false;
-    jwt.verify(
+    await jwt.verify(
         base64credentials,
         TOKEN_KEY,
-        (error, payload) => {
+        async (error, payload) => {
             if (error) return false;
             if (payload) {
-                for (let user of users) {
-                    if (user.id === payload.id) {
-                        returnValue = user;
-                        return true;
-                    }
+                let user = await db.getUserById(payload.id);
+                if (user) {
+                    returnValue = user;
+                    return true;
                 }
             }
             return false;

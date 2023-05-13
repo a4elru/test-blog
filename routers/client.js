@@ -44,7 +44,7 @@ router0.get('/blog', async (request, response) => {
     try {
         axiosResponse = await axios.request(config);
     } catch (error) {
-        console.log(error);
+        axiosErrorLog(error);
         let body = readStatic('./static/form-go-to-auth.html');
         result = result.replace('${body}', body);
         response.html(200, result);
@@ -80,8 +80,6 @@ router0.get('/blog', async (request, response) => {
     body = formPublish + body;
 
     let formPagination = readStatic('./static/form-pagination.html');
-    console.log(request.query.p);
-    console.log("request.query.p");
     let p = Number(request.query.p);
     if (p > 1) {
         formPagination = formPagination.replace('${prev}', `<a href="./blog?p=${p - 1}">предыдущая</a>`);
@@ -108,12 +106,12 @@ router0.post('/blog', async (request, response) => {
         return;
     }
 
-    let data = JSON.stringify({ "text": text });
+    let data = JSON.stringify({ 'text': text });
     let config = {
         method: 'post',
         maxBodyLength: Infinity,
         url: 'http://localhost:3333/api/posts',
-        headers: { 
+        headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${request.cookies.JWT}`
         },
@@ -123,6 +121,7 @@ router0.post('/blog', async (request, response) => {
     try {
         axiosResponse = await axios.request(config);
     } catch (error) {
+        axiosErrorLog(error);
         response.redirect(`./blog?p=${p}&i=2`);
         return;
     }
@@ -150,8 +149,8 @@ router0.post('/log-in', async (request, response) => {
     }
 
     let data = JSON.stringify({
-        "login": login,
-        "password": password
+        'login': login,
+        'password': password
     });
     let config = {
         method: 'post',
@@ -164,12 +163,12 @@ router0.post('/log-in', async (request, response) => {
     try {
         axiosResponse = await axios.request(config);
     } catch (error) {
+        axiosErrorLog(error);
         response.redirect('./log-in?e=1');
         return;
     }
 
     let { access_token } = axiosResponse.data;
-    console.log(access_token);
     response.cookie('JWT', access_token);
     response.redirect('./blog');
 });
@@ -202,9 +201,9 @@ router0.post('/sign-up', async (request, response) => {
     }
 
     let data = JSON.stringify({
-        "login": login,
-        "password": password,
-        "username": username
+        'login': login,
+        'password': password,
+        'username': username
     });
     let config = {
         method: 'post',
@@ -217,6 +216,7 @@ router0.post('/sign-up', async (request, response) => {
     try {
         axiosResponse = await axios.request(config);
     } catch (error) {
+        axiosErrorLog(error);
         response.redirect('./sign-up?i=2');
         return;
     }
@@ -238,6 +238,21 @@ function readStatic(filename) {
         .readFileSync(filename)
         .toString()
         .replaceAll('\n', '\r\n');
+}
+
+function axiosErrorLog(error) {
+    const code = error.code;
+    const config = {};
+    config.headers = error.config.headers;
+    config.method = error.config.method;
+    config.url = error.config.url;
+    config.data = error.config.data;
+    const response = {};
+    response.status = error.response.status;
+    response.statusText = error.response.statusText;
+    response.data = error.response.data;
+    const info = { code, config, response };
+    console.log(info);
 }
 
 module.exports = router0;

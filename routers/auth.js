@@ -3,6 +3,7 @@
 const express = require('express');
 const envelopeResponse = require('../middleware/envelope-response');
 const authJWT = require('../middleware/auth-jwt');
+const db = require('../database/database');
 
 const jwt = require('jsonwebtoken');
 const { TOKEN_KEY } = require('../params');
@@ -22,41 +23,40 @@ router0.get('/', (request, response) => {
     }
 });
 
-router0.post('/', (request, response) => {
-    const users = require('../database/users');
-    for (let user of users) {
-        if (
-            request.body.login === user.login &&
-            request.body.password === user.password
-        ) {
-            let access_token = jwt.sign({ id: user.id }, TOKEN_KEY);
-            response.envelope(200, { access_token } );
-            return;
-        }
+router0.post('/', async (request, response) => {
+    const login = request.body.login;
+    const password = request.body.password;
+    const user = await db.getUserByLoginAndPassword(login, password);
+    if (user) {
+        let access_token = jwt.sign({ id: user.id }, TOKEN_KEY);
+        response.envelope(200, { access_token } );
+        return;
     }
-    response.envelope(404, { message: 'Incorrect login or password' });
+    response.envelope(400, { message: 'Incorrect login or password' });
 });
 
-router0.post('/new', (request, response) => {
-    const users = require('../database/users');
-
-    for (let user of users) {
-        if (request.body.login === user.login) {
-            response.envelope(404, { message: 'Login already exists.' } );
-            return;
-        }
+router0.post('/new', async (request, response) => {
+    const user = await db.getUserByLogin(request.body.login);
+    if (user) {
+        response.envelope(400, { message: 'Login already exists.' } );
+        return;
     }
 
-    const user = {
-        id: users.length + 1,
-        login: request.body.login,
-        password: request.body.password,
-        username: request.body.username,
-    };
+    const login = request.body.login;
+    const username = request.body.username;
+    const password = request.body.password;
 
-    users[users.length] = user;
+    if (!login || !password || !username) {
+        response.envelope(400, { message: 'Empty fields are not allowed.' } );
+        return;
+    }
 
-    response.envelope(200, { message: 'Account created successful.' } );
+    const ok = await db.insertUser(login, username, password);
+    if (ok) {
+        response.envelope(200, { message: 'Account created successful.' } );
+    } else {
+        response.envelope(500, { message: 'Unexpected server error.' } );
+    }
 });
 
 module.exports = router0;
