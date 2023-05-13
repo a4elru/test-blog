@@ -1,0 +1,68 @@
+/* Общее оформление для страницы*/
+  body {
+    background: #76b852;
+    font-family: "Roboto", sans-serif;    
+  }
+
+/* Затенения и центровка прямоугольника формы */
+  form {
+    width: 500px;
+    background: #FFFFFF;
+    margin: 0 auto 25px;
+    padding: 25px;
+    text-align: center;
+    box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);
+  }
+
+/* Оформление многострочного поля ввода */
+  .textarea {
+    resize: vertical;
+    outline: 0;
+    background: #f2f2f2;
+    width: 100%;
+    height: 50px;
+    border: 0;
+    margin: 0 0 -5px;
+    padding: 15px;
+    box-sizing: border-box;
+    font-size: 16px;
+    min-height: 50px;
+  }
+
+/* Оформление однострочных полей ввода */
+  .textline {
+    outline: 0;
+    background: #f2f2f2;
+    width: 100%;
+    border: 0;
+    margin: 0 0 15px;
+    padding: 15px;
+    box-sizing: border-box;
+    font-size: 16px;
+  }
+
+/* Оформление кнопки */
+  .button {
+    text-transform: uppercase;
+    outline: 0;
+    background: #4CAF50;
+    width: 100%;
+    border: 0;
+    padding: 15px;
+    color: #FFFFFF;
+    font-size: 16px;
+    -webkit-transition: all 0.3 ease;
+    transition: all 0.3 ease;
+    cursor: pointer;
+  }
+  .button:hover,.form button:active,.form button:focus {
+    background: #43A047;
+  }
+
+/* Оформление таблицы */
+  table {
+    width: 500px;
+  }
+  td {
+    width: 250px;
+  }

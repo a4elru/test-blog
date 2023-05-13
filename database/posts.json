@@ -1,0 +1,30 @@
+[
+  {
+    "id": 1,
+    "timestamp": 1683572165000,
+    "login": "jackie@gmail.com",
+    "username": "Jackie",
+    "text": "Hello, it's my first post!"
+  },
+  {
+    "id": 2,
+    "timestamp": 1683654565000,
+    "login": "mary@gmail.com",
+    "username": "Mary",
+    "text": "Only 3 days I have."
+  },
+  {
+    "id": 3,
+    "timestamp": 1683740985000,
+    "login": "mary@gmail.com",
+    "username": "Mary",
+    "text": "Only 4 days I have."
+  },
+  {
+    "id": 4,
+    "timestamp": 1683827565000,
+    "login": "mary@gmail.com",
+    "username": "Mary",
+    "text": "Only 5 days I have."
+  }
+]
