@@ -169,7 +169,7 @@ router0.post('/log-in', async (request, response) => {
     }
 
     let { access_token } = axiosResponse.data;
-    response.cookie('JWT', access_token);
+    response.cookie('JWT', access_token); // session cookie
     response.redirect('./blog');
 });
 
@@ -224,7 +224,7 @@ router0.post('/sign-up', async (request, response) => {
 });
 
 router0.get('/log-out', async (request, response) => {
-    response.cookie('JWT', '', { expires: 0 });
+    response.cookie('JWT', '', { expires: new Date(0) }); // remove cookie
     response.redirect('./blog');
 });
 
