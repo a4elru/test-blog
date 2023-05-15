@@ -241,6 +241,8 @@ function readStatic(filename) {
 }
 
 function axiosErrorLog(error) {
+    return;
+
     const code = error.code;
     const config = {};
     config.headers = error.config.headers;

@@ -5,14 +5,8 @@ let predropDB = true;
 const { Client } = require('pg');
 const sql = require('./sql-queries');
 
-const config = {
-    host: 'localhost',
-    port: 5432,
-    database: 'testblog',
-    user: 'postgres',
-    password: 'postgres',
-};
-const client = new Client(config);
+const { PG_CONFIG } = require('../params');
+const client = new Client(PG_CONFIG);
 
 async function initDatabase() {
     await client.connect();

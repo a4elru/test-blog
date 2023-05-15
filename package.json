@@ -1,6 +1,6 @@
 {
   "name": "test-blog",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "main": "index.js",
   "repository": "git@github.com:a4elru/test-blog.git",
   "author": "a4elru <a.4el.ru.16@gmail.com>",
