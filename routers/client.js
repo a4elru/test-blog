@@ -57,13 +57,13 @@ router0.get('/blog', async (request, response) => {
     if (request.query.i === undefined) {
         formPublish = formPublish.replace('${info}', '');
     } else if (request.query.i === '1') {
-        formPublish = formPublish.replace('${info}', '<br><br><label>Пост не должен быть пустым.</label>');
+        formPublish = formPublish.replace('${info}', '<br><br><a>Пост не должен быть пустым.</a>');
     } else if (request.query.i === '2') {
-        formPublish = formPublish.replace('${info}', '<br><br><label>Внутренняя ошибка.</label>');
+        formPublish = formPublish.replace('${info}', '<br><br><a>Внутренняя ошибка.</a>');
     } else if (request.query.i === '3') {
-        formPublish = formPublish.replace('${info}', '<br><br><label>Пост опубликован.</label>');
+        formPublish = formPublish.replace('${info}', '<br><br><a>Пост опубликован.</a>');
     } else {
-        formPublish = formPublish.replace('${info}', '<br><br><label>Непредвиденная ошибка.</label>');
+        formPublish = formPublish.replace('${info}', '<br><br><a>Непредвиденная ошибка.</a>');
     }
     formPublish = formPublish.replace('${username}', username);
 
@@ -138,7 +138,7 @@ router0.get('/log-in', async (request, response) => {
     if (request.query.e === undefined) {
         body = body.replace('${info}', '');
     } else {
-        body = body.replace('${info}', '<br><br><label>Неверный логин или пароль.</label>');
+        body = body.replace('${info}', '<br><br><a>Неверный логин или пароль.</a>');
     }
     result = result.replace('${body}', body);
     response.html(200, result);
@@ -183,13 +183,13 @@ router0.get('/sign-up', async (request, response) => {
     if (request.query.i === undefined) {
         body = body.replace('${info}', '');
     } else if (request.query.i === '1') {
-        body = body.replace('${info}', '<br><br><label>Обязательны все поля.</label>');
+        body = body.replace('${info}', '<br><br><a>Обязательны все поля.</a>');
     } else if (request.query.i === '2') {
-        body = body.replace('${info}', '<br><br><label>Логин занят.</label>');
+        body = body.replace('${info}', '<br><br><a>Логин занят.</a>');
     } else if (request.query.i === '3') {
-        body = body.replace('${info}', '<br><br><label>Вы зарегистрировались и теперь можете войти.</label>');
+        body = body.replace('${info}', '<br><br><a>Вы зарегистрировались и теперь можете войти.</a>');
     } else {
-        body = body.replace('${info}', '<br><br><label>Непредвиденная ошибка.</label>');
+        body = body.replace('${info}', '<br><br><a>Непредвиденная ошибка.</a>');
     }
     result = result.replace('${body}', body);
     response.html(200, result);
