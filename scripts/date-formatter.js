@@ -1,5 +1,3 @@
-'use strict';
-
 // example: "2023.02.14 12:45:98"
 function dateToString(milliseconds) {
     const ms = Number(milliseconds);
@@ -17,7 +15,3 @@ function dateToString(milliseconds) {
         ((d.getSeconds()<10) ? '0' : '') + (d.getSeconds());
     return d;
 }
-
-module.exports = {
-    dateToString
-};

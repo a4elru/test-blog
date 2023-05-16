@@ -1,0 +1,1 @@
+function dateToString(e){e=Number(e);let t=new Date(e);return t=t.getFullYear()+"."+(1+t.getMonth()<10?"0":"")+(1+t.getMonth())+"."+(t.getDate()<10?"0":"")+t.getDate()+" "+(t.getHours()<10?"0":"")+t.getHours()+":"+(t.getMinutes()<10?"0":"")+t.getMinutes()+":"+(t.getSeconds()<10?"0":"")+t.getSeconds()}

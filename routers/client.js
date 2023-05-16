@@ -6,7 +6,6 @@ const cookieParser = require('cookie-parser');
 
 const axios = require('axios');
 const fs = require('fs');
-const { dateToString } = require('../func/date-formatter');
 
 const router0 = express.Router();
 
@@ -70,10 +69,15 @@ router0.get('/blog', async (request, response) => {
 
     let body = '';
     let formPost = readStatic('./static/form-post.html');
+    if (posts.length > 0) {
+        body += '<script type="text/javascript" src="date-formatter.js"></script>';
+    }
     for (let i = 0; i < posts.length; i++) {
         let formCurrent = String(formPost);
         formCurrent = formCurrent.replace('${username}', posts[i].username);
-        formCurrent = formCurrent.replace('${timestamp}', dateToString(posts[i].timestamp));
+        let timestamp = `<script type="text/javascript">document.write(
+dateToString(${posts[i].timestamp}))</script>`;
+        formCurrent = formCurrent.replace('${timestamp}', timestamp);
         formCurrent = formCurrent.replace('${text}', posts[i].text);
         body += formCurrent;
     }
@@ -231,6 +235,11 @@ router0.get('/log-out', async (request, response) => {
 router0.get('/style.css', (request, response) => {
     let result = readStatic('./static/style.css');
     response.html(200, result, 'text/css');
+});
+
+router0.get('/date-formatter.js', (request, response) => {
+    let result = readStatic('./static/date-formatter.js');
+    response.html(200, result, 'text/javascript');
 });
 
 function readStatic(filename) {

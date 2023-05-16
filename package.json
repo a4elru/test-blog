@@ -1,7 +1,11 @@
 {
   "name": "test-blog",
-  "version": "1.0.2",
-  "main": "index.js",
+  "version": "1.0.3",
+  "main": "service.js",
+  "scripts": {
+    "start": "node service.js",
+    "dev": "nodemon service.js"
+  },
   "repository": "git@github.com:a4elru/test-blog.git",
   "author": "a4elru <a.4el.ru.16@gmail.com>",
   "license": "MIT",
@@ -11,5 +15,9 @@
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.0",
     "pg": "^8.10.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.40.0",
+    "uglify-js": "^3.17.4"
   }
 }
