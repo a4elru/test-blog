@@ -120,20 +120,25 @@ Authorization: Bearer {access_token}
 ```http
 200 OK
 {
-    "username": "{your username}",
+    "authorization": {
+        "user_id": ${your user id},
+        "username": ${your username}
+    },
     "posts": [
         {
             "id": 4,
             "timestamp": "1684009212989",
-            "text": "Post number 4.",
+            "user_id": "1"
             "username": "BEE"
+            "text": "Post number 4.",
         },
         ...
         {
             "id": 3,
             "timestamp": "1684009212979",
-            "text": "Post number 3.",
+            "user_id": "1"
             "username": "BEE"
+            "text": "Post number 3.",
         }
     ]
 }
@@ -145,6 +150,36 @@ Authorization: Bearer {access_token}
 401 Unauthorized
 {
     "message": "Not authorized"
+}
+```
+
+## GET /api/posts/1 - доступ к статье по ID
+
+Запрос:
+
+```http
+GET /api/posts/${post_id} HTTP/1.1
+Authorization: Bearer {access_token}
+```
+
+Ответ в случае успеха:
+
+```http
+200 OK
+{
+    "authorization": {
+        "user_id": ${your user id},
+        "username": ${your username}
+    },
+    "posts": [
+        {
+            "id": ${post_id},
+            "timestamp": "1684009212989",
+            "user_id": "1"
+            "username": "BEE"
+            "text": "Post number 1.",
+        }
+    ]
 }
 ```
 

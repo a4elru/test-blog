@@ -62,7 +62,12 @@ async function insertUser(login, username, password) {
 
 async function getPostsByPage(firstId, limit) {
     const params = [ firstId, limit ];
-    const { rows } = await client.query(sql.select_posts_by_page, params);
+    const { rows } = await client.query(sql.get_posts_by_page, params);
+    return rows;
+}
+
+async function getPostById(id) {
+    const { rows } = await client.query(sql.get_post_by_id, [ id ]);
     return rows;
 }
 
@@ -80,5 +85,6 @@ module.exports = {
     getUserByLogin,
     insertUser,
     getPostsByPage,
+    getPostById,
     insertPost,
 };

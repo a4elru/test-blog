@@ -50,7 +50,7 @@ router0.get('/blog', async (request, response) => {
         return;
     }
 
-    let username = axiosResponse.data.username;
+    let username = axiosResponse.data.authorization.username;
     let posts = axiosResponse.data.posts;
 
     let formPublish = readStatic('./static/form-publish.html');

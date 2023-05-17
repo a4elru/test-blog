@@ -21,9 +21,40 @@ router0.get('/posts', async (request, response) => {
         }
         const skip = PAGINATION_SIZE * (request.query.p - 1);
         const limit = PAGINATION_SIZE;
-        const posts = await db.getPostsByPage(skip, limit);
-        const username = request.isAuthenticated.username;
-        response.envelope(200, { username, posts });
+        let posts;
+        try {
+            posts = await db.getPostsByPage(skip, limit);
+        } catch(error) {
+            console.error(error);
+            response.envelope(500, { message: 'Internal server error.' });
+            return;
+        }
+        const authorization = {
+            user_id: request.isAuthenticated.id,
+            username: request.isAuthenticated.username,
+        }
+        response.envelope(200, { authorization, posts });
+    } else {
+        response.envelope(401, { message: 'Not authorized' });
+    }
+});
+
+router0.get(/^\/posts\/\d+$/ , async (request, response) => {
+    if (request.isAuthenticated) {
+        const id = Number(request.path.slice(7));
+        let posts;
+        try {
+            posts = await db.getPostById(id);
+        } catch(error) {
+            console.error(error);
+            response.envelope(500, { message: 'Internal server error.' });
+            return;
+        }
+        const authorization = {
+            user_id: request.isAuthenticated.id,
+            username: request.isAuthenticated.username,
+        }
+        response.envelope(200, { authorization, posts });
     } else {
         response.envelope(401, { message: 'Not authorized' });
     }
@@ -40,11 +71,18 @@ router0.post('/posts', async (request, response) => {
             request.isAuthenticated.id,
             request.body.text
         ];
-        const ok = await db.insertPost(...post);
+        let ok;
+        try {
+            ok = await db.insertPost(...post);
+        } catch(error) {
+            console.error(error);
+            response.envelope(500, { message: 'Internal server error.' });
+            return;
+        }
         if (ok) {
             response.envelope(200, { message: 'Post publicated.' });
         } else {
-            response.envelope(500, { message: 'Internal server error.' });
+            response.envelope(500, { message: 'Post not publicated.' });
         }
     } else {
         response.envelope(401, { message: 'Not authorized' });

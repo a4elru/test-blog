@@ -12,6 +12,8 @@ params.PG_CONFIG = {
     user: process.env['PG_USER'] || 'postgres',
     password: process.env['PG_PASSWORD'] || 'postgres',
     connectionString: process.env['PG_CONNECTION_STRING'] || undefined,
+    idleTimeoutMillis: 0,
+    connectionTimeoutMillis: 0,
 };
 
 Object.freeze(params);
