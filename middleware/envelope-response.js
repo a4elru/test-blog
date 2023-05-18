@@ -14,9 +14,19 @@ function func(request, response, next) {
 
 function envelope(status, json) {
     this.status(status);
-    if (json !== undefined) {
+
+    if (json) {
         this.json(json);
-    } else {
+        return;
+    }
+    switch (json) {
+    case 401:
+        this.json({ message: 'Not authorized.' });
+        break;
+    case 500:
+        this.json({ message: 'Internal server error.' });
+        break;
+    default:
         this.json({});
     }
 }

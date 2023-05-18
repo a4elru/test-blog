@@ -1,5 +1,7 @@
 'use strict';
 
+const { PAGINATION_SIZE } = require('../params');
+
 let predropDB = true;
 
 const { Client } = require('pg');
@@ -60,8 +62,10 @@ async function insertUser(login, username, password) {
     return (rowCount === 1);
 }
 
-async function getPostsByPage(firstId, limit) {
-    const params = [ firstId, limit ];
+async function getPostsByPage(pageNumber) {
+    const offset = PAGINATION_SIZE * (pageNumber - 1);
+    const limit = PAGINATION_SIZE;
+    const params = [ limit, offset ];
     const { rows } = await client.query(sql.get_posts_by_page, params);
     return rows;
 }

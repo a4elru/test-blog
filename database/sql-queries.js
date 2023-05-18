@@ -58,7 +58,7 @@ queries.get_posts_by_page = post + `
 FROM posts
 JOIN users ON posts.userId = users.id
 ORDER BY posts.id DESC
-LIMIT $2::integer OFFSET $1::integer;
+LIMIT $1::integer OFFSET $2::integer;
 `;
 
 Object.freeze(queries);

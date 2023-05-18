@@ -171,15 +171,13 @@ Authorization: Bearer {access_token}
         "user_id": {your user id},
         "username": {your username}
     },
-    "posts": [
-        {
+    "post": {
             "id": {post_id},
             "timestamp": "1684009212989",
             "user_id": "1"
             "username": "BEE"
             "text": "Post number 1.",
-        }
-    ]
+    }
 }
 ```
 
@@ -265,7 +263,7 @@ Authorization: Bearer {access_token}
 ```
 
 ```http
-404 Post not found
+404 Not Found
 {
     "message": "Post not found."
 }
