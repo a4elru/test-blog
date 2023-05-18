@@ -12,6 +12,7 @@ const routerClient = require('./routers/client');
 const app = express();
 db.initDatabase();
 
+app.get('/', (_, response) => response.redirect('/client/blog'));
 app.use('/api', routerAPI);
 app.use('/auth', routerAUTH);
 app.use('/client', routerClient);

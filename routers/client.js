@@ -19,6 +19,7 @@ router0.use((request, response, next) => {
 });
 
 router0.get('/blog', async (request, response) => {
+    const referer = request.get('referer');
     let result = readStatic('./static/page.html');
 
     if (request.cookies.JWT === undefined) {
@@ -43,37 +44,66 @@ router0.get('/blog', async (request, response) => {
     try {
         axiosResponse = await axios.request(config);
     } catch (error) {
-        axiosErrorLog(error);
-        let body = readStatic('./static/form-go-to-auth.html');
-        result = result.replace('${body}', body);
-        response.html(200, result);
-        return;
+        if (error.response.status === 401) {
+            let body = readStatic('./static/form-go-to-auth.html');
+            result = result.replace('${body}', body);
+            response.html(200, result);
+            return;
+        } else {
+            axiosErrorLog(error);
+            let result = readStatic('./static/500.html');
+            response.html(500, result);
+            return;
+        }
     }
 
-    let username = axiosResponse.data.authorization.username;
+    const authorization = axiosResponse.data.authorization;
     let posts = axiosResponse.data.posts;
 
     let formPublish = readStatic('./static/form-publish.html');
-    if (request.query.i === undefined) {
+    response.cookie('i', '', { expires: new Date(0) }); // remove cookie
+    switch (request.cookies.i) {
+    case undefined:
         formPublish = formPublish.replace('${info}', '');
-    } else if (request.query.i === '1') {
+        break;
+    case '1':
         formPublish = formPublish.replace('${info}', '<br><br><a>Пост не должен быть пустым.</a>');
-    } else if (request.query.i === '2') {
+        break;
+    case '2':
         formPublish = formPublish.replace('${info}', '<br><br><a>Внутренняя ошибка.</a>');
-    } else if (request.query.i === '3') {
+        break;
+    case '3':
         formPublish = formPublish.replace('${info}', '<br><br><a>Пост опубликован.</a>');
-    } else {
+        break;
+    case '4':
+        formPublish = formPublish.replace('${info}', '<br><br><a>Ошибка удаления.</a>');
+        break;
+    case '5':
+        formPublish = formPublish.replace('${info}', '<br><br><a>Неверный идентификатор поста.</a>');
+        break;
+    case '6':
+        formPublish = formPublish.replace('${info}', '<br><br><a>Пост удалён.</a>');
+        break;
+    default:
         formPublish = formPublish.replace('${info}', '<br><br><a>Непредвиденная ошибка.</a>');
+        break;
     }
-    formPublish = formPublish.replace('${username}', username);
+    formPublish = formPublish.replace('${username}', authorization.username);
 
     let body = '';
     let formPost = readStatic('./static/form-post.html');
+    let postButtons = readStatic('./static/post-buttons.html');
     if (posts.length > 0) {
         body += '<script type="text/javascript" src="date-formatter.js"></script>';
     }
     for (let i = 0; i < posts.length; i++) {
         let formCurrent = String(formPost);
+        if (posts[i].user_id == authorization.user_id) {
+            const buttons = postButtons.replace('${id}', posts[i].id);
+            formCurrent = formCurrent.replace('${post-buttons}', buttons);
+        } else {
+            formCurrent = formCurrent.replace('${post-buttons}', '');
+        }
         formCurrent = formCurrent.replace('${username}', posts[i].username);
         let timestamp = `<script type="text/javascript">document.write(
 dateToString(${posts[i].timestamp}))</script>`;
@@ -101,12 +131,14 @@ dateToString(${posts[i].timestamp}))</script>`;
     response.html(200, result);
 });
 router0.post('/blog', async (request, response) => {
+    const referer = request.get('referer');
     let text = request.body.text;
 
     let p = request.query.p || '1';
 
     if (!text) {
-        response.redirect(`./blog?p=${p}&i=1`);
+        response.cookie('i', 1); // session cookie
+        response.redirect(referer);
         return;
     }
 
@@ -126,10 +158,46 @@ router0.post('/blog', async (request, response) => {
         axiosResponse = await axios.request(config);
     } catch (error) {
         axiosErrorLog(error);
-        response.redirect(`./blog?p=${p}&i=2`);
+        response.cookie('i', 2); // session cookie
+        response.redirect(referer);
         return;
     }
-    response.redirect(`./blog?p=${p}&i=3`);
+    response.cookie('i', 3); // session cookie
+    response.redirect(referer);
+});
+router0.post('/blog/delete', async (request, response) => {
+    const referer = request.get('referer');
+    const id = request.body.id;
+    const p = request.query.p || '1';
+
+    if (!id) {
+        response.cookie('i', 5); // session cookie
+        response.redirect(referer);
+        return;
+    }
+
+    let data = JSON.stringify({ 'id': id });
+    let config = {
+        method: 'delete',
+        maxBodyLength: Infinity,
+        url: 'http://localhost:3333/api/posts',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${request.cookies.JWT}`
+        },
+        data: data
+    };
+    let axiosResponse;
+    try {
+        axiosResponse = await axios.request(config);
+    } catch (error) {
+        axiosErrorLog(error);
+        response.cookie('i', 4); // session cookie
+        response.redirect(referer);
+        return;
+    }
+    response.cookie('i', 6); // session cookie
+    response.redirect(referer);
 });
 
 router0.get('/log-in', async (request, response) => {
@@ -250,8 +318,6 @@ function readStatic(filename) {
 }
 
 function axiosErrorLog(error) {
-    return;
-
     const code = error.code;
     const config = {};
     config.headers = error.config.headers;

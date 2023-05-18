@@ -39,10 +39,14 @@ queries.insert_post = `
 INSERT INTO posts(
     timestamp, userId, text
 ) VALUES (
-    $1::bigint, $2::bigint, $3::text
+    $1::bigint, $2::integer, $3::text
 )`;
+queries.delete_post = `
+DELETE FROM posts
+WHERE id=$1::integer AND userId=$2::integer
+`;
 const post = `
-SELECT posts.id, posts.timestamp, users.id as user_id,
+SELECT posts.id, posts.timestamp, posts.userId as user_id,
        users.username, posts.text
 `;
 queries.get_post_by_id = post + `
@@ -53,9 +57,8 @@ WHERE posts.id=$1::integer;
 queries.get_posts_by_page = post + `
 FROM posts
 JOIN users ON posts.userId = users.id
-WHERE posts.id<=(SELECT count(*) FROM posts)-$1::integer
-ORDER BY posts.timestamp DESC
-LIMIT $2::integer;
+ORDER BY posts.id DESC
+LIMIT $2::integer OFFSET $1::integer;
 `;
 
 Object.freeze(queries);

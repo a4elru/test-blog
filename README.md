@@ -121,8 +121,8 @@ Authorization: Bearer {access_token}
 200 OK
 {
     "authorization": {
-        "user_id": ${your user id},
-        "username": ${your username}
+        "user_id": {your user id},
+        "username": {your username}
     },
     "posts": [
         {
@@ -158,7 +158,7 @@ Authorization: Bearer {access_token}
 Запрос:
 
 ```http
-GET /api/posts/${post_id} HTTP/1.1
+GET /api/posts/{post_id} HTTP/1.1
 Authorization: Bearer {access_token}
 ```
 
@@ -168,12 +168,12 @@ Authorization: Bearer {access_token}
 200 OK
 {
     "authorization": {
-        "user_id": ${your user id},
-        "username": ${your username}
+        "user_id": {your user id},
+        "username": {your username}
     },
     "posts": [
         {
-            "id": ${post_id},
+            "id": {post_id},
             "timestamp": "1684009212989",
             "user_id": "1"
             "username": "BEE"
@@ -198,7 +198,7 @@ Authorization: Bearer {access_token}
 Ответ в случае успеха:
 
 ```http
-200 OK
+201 Created
 {
     "message": "Post publicated."
 }
@@ -217,5 +217,56 @@ Authorization: Bearer {access_token}
 401 Unauthorized
 {
     "message": "Not authorized"
+}
+```
+
+## DELETE /api/posts - удаление статьи
+
+Запрос:
+
+```http
+DELETE /api/posts HTTP/1.1
+Authorization: Bearer {access_token}
+{
+    "id": "1"
+}
+```
+
+Ответ в случае успеха:
+
+```http
+200 OK
+{
+    "message": "Delete successful."
+}
+```
+
+Варианты ответа в остальных случаях:
+
+```http
+400 Bad Request
+{
+    "message": "Post id required."
+}
+```
+
+```http
+400 Bad Request
+{
+    "message": "Incorrect value id."
+}
+```
+
+```http
+403 Forbidden
+{
+    "message": "Forbidden."
+}
+```
+
+```http
+404 Post not found
+{
+    "message": "Post not found."
 }
 ```

@@ -68,12 +68,18 @@ async function getPostsByPage(firstId, limit) {
 
 async function getPostById(id) {
     const { rows } = await client.query(sql.get_post_by_id, [ id ]);
-    return rows;
+    return rows[0];
 }
 
 async function insertPost(timestamp, userId, text) {
     const params = [ timestamp, userId, text ];
     const { rowCount } = await client.query(sql.insert_post, params);
+    return (rowCount === 1);
+}
+
+async function deletePost(id, userId) {
+    const params = [ id, userId ];
+    const { rowCount } = await client.query(sql.delete_post, params);
     return (rowCount === 1);
 }
 
@@ -87,4 +93,5 @@ module.exports = {
     getPostsByPage,
     getPostById,
     insertPost,
+    deletePost,
 };
