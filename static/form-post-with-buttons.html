@@ -1,0 +1,18 @@
+<div class="pane">
+	<form action="blog/delete" method="post">
+		<input type="hidden" name="id" value="${id}" />
+		<input type="submit" class="post-button-del" value="Удалить" />
+	</form>
+	<input id="post-${id}-button-edit" type="button" class="post-button-edit" value="Редактировать" onclick="edit(${id})" />
+	<input id="post-${id}-button-save" type="button" class="post-button-save" value="Сохранить" onclick="save(${id})" hidden/>
+	<table>
+		<tr>
+			<td align="left" valign="middle"><h2>${username}</h2></td>
+			<td align="right" valign="middle">${timestamp}</td>
+		</tr>
+	</table>
+	<form action="blog/edit" method="post" id="post-${id}-update-form">
+		<input type="hidden" name="id" value="${id}" />
+		<textarea disabled class="textarea" id="post-${id}" name="text">${text}</textarea>
+	</form>
+</div>

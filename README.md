@@ -11,16 +11,16 @@
 
 # Endpoints API
 
-## POST /auth/new - регистрация
+## 1. POST /auth/new - регистрация
 
 Запрос:
 
 ```http
 POST /auth/new HTTP/1.1
 {
-    "login": "bee@gmail.com",
-    "password": "bee",
-    "username": "BEE"
+    "login": "{login}",
+    "password": "{password}",
+    "username": "{username}"
 }
 ```
 
@@ -33,31 +33,15 @@ POST /auth/new HTTP/1.1
 }
 ```
 
-Варианты ответа в остальных случаях:
-
-```http
-400 Bad Request
-{
-    "message": "Login already exists."
-}
-```
-
-```http
-400 Bad Request
-{
-    "message": "Empty fields are not allowed."
-}
-```
-
-## POST /auth - аутентификация
+## 2. POST /auth - аутентификация
 
 Запрос:
 
 ```http
 POST /auth HTTP/1.1
 {
-    "login": "bee@gmail.com",
-    "password": "bee"
+    "login": "{login}",
+    "password": "{password}"
 }
 ```
 
@@ -70,16 +54,7 @@ POST /auth HTTP/1.1
 }
 ```
 
-Варианты ответа в остальных случаях:
-
-```http
-400 Bad Request
-{
-    "message": "Incorrect login or password"
-}
-```
-
-## GET /auth - проверка авторизации
+## 3. GET /auth - проверка авторизации
 
 Запрос:
 
@@ -93,20 +68,11 @@ Authorization: Bearer {access_token}
 ```http
 200 OK
 {
-    "message": "Authorized as \"bee@gmail.com\""
+    "message": "Authorized as \"{login}\""
 }
 ```
 
-Варианты ответа в остальных случаях:
-
-```http
-401 Unauthorized
-{
-    "message": "Not authorized"
-}
-```
-
-## GET /api/posts?p={page} - доступ к статьям блога
+## 4. GET /api/posts?p={page} - доступ к статьям блога
 
 Запрос:
 
@@ -121,8 +87,8 @@ Authorization: Bearer {access_token}
 200 OK
 {
     "authorization": {
-        "user_id": {your user id},
-        "username": {your username}
+        "user_id": "{your user id}",
+        "username": "{your username}"
     },
     "posts": [
         {
@@ -130,7 +96,7 @@ Authorization: Bearer {access_token}
             "timestamp": "1684009212989",
             "user_id": "1"
             "username": "BEE"
-            "text": "Post number 4.",
+            "text": "Post number 5.",
         },
         ...
         {
@@ -138,22 +104,13 @@ Authorization: Bearer {access_token}
             "timestamp": "1684009212979",
             "user_id": "1"
             "username": "BEE"
-            "text": "Post number 3.",
+            "text": "Post number 1.",
         }
     ]
 }
 ```
 
-Варианты ответа в остальных случаях:
-
-```http
-401 Unauthorized
-{
-    "message": "Not authorized"
-}
-```
-
-## GET /api/posts/1 - доступ к статье по ID
+## 5. GET /api/posts/1 - доступ к статье по ID
 
 Запрос:
 
@@ -181,7 +138,7 @@ Authorization: Bearer {access_token}
 }
 ```
 
-## POST /api/posts - публикация статьи
+## 6. POST /api/posts - публикация статьи
 
 Запрос:
 
@@ -189,7 +146,7 @@ Authorization: Bearer {access_token}
 POST /api/posts HTTP/1.1
 Authorization: Bearer {access_token}
 {
-    "text": "Text of new post."
+    "text": "{text}"
 }
 ```
 
@@ -202,23 +159,7 @@ Authorization: Bearer {access_token}
 }
 ```
 
-Варианты ответа в остальных случаях:
-
-```http
-400 Bad Request
-{
-    "message": "Post must not be empty."
-}
-```
-
-```http
-401 Unauthorized
-{
-    "message": "Not authorized"
-}
-```
-
-## DELETE /api/posts - удаление статьи
+## 7. DELETE /api/posts - удаление статьи
 
 Запрос:
 
@@ -226,7 +167,7 @@ Authorization: Bearer {access_token}
 DELETE /api/posts HTTP/1.1
 Authorization: Bearer {access_token}
 {
-    "id": "1"
+    "id": "{id}"
 }
 ```
 
@@ -239,32 +180,24 @@ Authorization: Bearer {access_token}
 }
 ```
 
-Варианты ответа в остальных случаях:
+## 8. PATCH /api/posts - обновление текста статьи
+
+Запрос:
 
 ```http
-400 Bad Request
+UPDATE /api/posts HTTP/1.1
+Authorization: Bearer {access_token}
 {
-    "message": "Post id required."
+    "id": "{id}",
+    "text": "{text}"
 }
 ```
 
-```http
-400 Bad Request
-{
-    "message": "Incorrect value id."
-}
-```
+Ответ в случае успеха:
 
 ```http
-403 Forbidden
+200 OK
 {
-    "message": "Forbidden."
-}
-```
-
-```http
-404 Not Found
-{
-    "message": "Post not found."
+    "message": "Update successful."
 }
 ```

@@ -87,6 +87,12 @@ async function deletePost(id, userId) {
     return (rowCount === 1);
 }
 
+async function updatePost(text, id, userId) {
+    const params = [ text, id, userId ];
+    const { rowCount } = await client.query(sql.update_post, params);
+    return (rowCount === 1);
+}
+
 module.exports = {
     initDatabase,
     closeDatabase,
@@ -98,4 +104,5 @@ module.exports = {
     getPostById,
     insertPost,
     deletePost,
+    updatePost,
 };

@@ -45,6 +45,11 @@ queries.delete_post = `
 DELETE FROM posts
 WHERE id=$1::integer AND userId=$2::integer
 `;
+queries.update_post = `
+UPDATE posts
+SET text=$1::text
+WHERE id=$2::integer AND userId=$3::integer
+`;
 const post = `
 SELECT posts.id, posts.timestamp, posts.userId as user_id,
        users.username, posts.text

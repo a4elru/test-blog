@@ -26,7 +26,14 @@ router0.get('/', (request, response) => {
 router0.post('/', async (request, response) => {
     const login = request.body.login;
     const password = request.body.password;
-    const user = await db.getUserByLoginAndPassword(login, password);
+    let user;
+    try {
+        user = await db.getUserByLoginAndPassword(login, password);
+    } catch(error) {
+        console.error(error);
+        response.envelope(500);
+        return;
+    }
     if (user) {
         let access_token = jwt.sign({ id: user.id }, TOKEN_KEY);
         response.envelope(200, { access_token });

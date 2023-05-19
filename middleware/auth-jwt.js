@@ -31,7 +31,13 @@ async function clientIsAuthenticated(request) {
         async (error, payload) => {
             if (error) return false;
             if (payload) {
-                let user = await db.getUserById(payload.id);
+                let user;
+                try {
+                    user = await db.getUserById(payload.id);
+                } catch(error) {
+                    console.error(error);
+                    return false;
+                }
                 if (user) {
                     returnValue = user;
                     return true;

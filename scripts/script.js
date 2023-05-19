@@ -15,3 +15,16 @@ function dateToString(milliseconds) {
         ((d.getSeconds()<10) ? '0' : '') + (d.getSeconds());
     return d;
 }
+
+function edit(id) {
+    let textarea = document.getElementById('post-'+ id);
+    textarea.disabled = false;
+    let button = document.getElementById('post-'+ id + '-button-edit');
+    button.hidden = true;
+    button = document.getElementById('post-'+ id + '-button-save');
+    button.hidden = false;
+}
+function save(id) {
+    let form = document.getElementById('post-'+ id + '-update-form');
+    form.submit();
+}

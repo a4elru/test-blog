@@ -72,6 +72,32 @@
     background: #A04347;
   }
 
+  .post-button-edit {
+    position: absolute;
+    text-transform: uppercase;
+    background: #AFAF50;
+    border: 0;
+    color: #FFFFFF;
+    cursor: pointer;
+    margin: 49px 47px;
+  }
+  .post-button-edit:hover,.form button:active,.form button:focus {
+    background: #A0A047;
+  }
+
+  .post-button-save {
+    position: absolute;
+    text-transform: uppercase;
+    background: #50AF50;
+    border: 0;
+    color: #FFFFFF;
+    cursor: pointer;
+    margin: 49px 80px;
+  }
+  .post-button-save:hover,.form button:active,.form button:focus {
+    background: #47A047;
+  }
+
 /* Оформление таблицы */
   table {
     width: 500px;

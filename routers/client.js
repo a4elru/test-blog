@@ -84,6 +84,9 @@ router0.get('/blog', async (request, response) => {
     case '6':
         formPublish = formPublish.replace('${info}', '<br><br><a>Пост удалён.</a>');
         break;
+    case '7':
+        formPublish = formPublish.replace('${info}', '<br><br><a>Пост обновлён.</a>');
+        break;
     default:
         formPublish = formPublish.replace('${info}', '<br><br><a>Непредвиденная ошибка.</a>');
         break;
@@ -92,17 +95,17 @@ router0.get('/blog', async (request, response) => {
 
     let body = '';
     let formPost = readStatic('./static/form-post.html');
-    let postButtons = readStatic('./static/post-buttons.html');
+    let formPostWithButtons = readStatic('./static/form-post-with-buttons.html');
     if (posts.length > 0) {
-        body += '<script type="text/javascript" src="date-formatter.js"></script>';
+        body += '<script type="text/javascript" src="script.js"></script>';
     }
     for (let i = 0; i < posts.length; i++) {
-        let formCurrent = String(formPost);
+        let formCurrent;
         if (posts[i].user_id == authorization.user_id) {
-            const buttons = postButtons.replace('${id}', posts[i].id);
-            formCurrent = formCurrent.replace('${post-buttons}', buttons);
+            formCurrent = String(formPostWithButtons);
+            formCurrent = formCurrent.replaceAll('${id}', posts[i].id);
         } else {
-            formCurrent = formCurrent.replace('${post-buttons}', '');
+            formCurrent = String(formPost);
         }
         formCurrent = formCurrent.replace('${username}', posts[i].username);
         let timestamp = `<script type="text/javascript">document.write(
@@ -133,8 +136,6 @@ dateToString(${posts[i].timestamp}))</script>`;
 router0.post('/blog', async (request, response) => {
     const referer = request.get('referer');
     let text = request.body.text;
-
-    let p = request.query.p || '1';
 
     if (!text) {
         response.cookie('i', 1); // session cookie
@@ -168,7 +169,6 @@ router0.post('/blog', async (request, response) => {
 router0.post('/blog/delete', async (request, response) => {
     const referer = request.get('referer');
     const id = request.body.id;
-    const p = request.query.p || '1';
 
     if (!id) {
         response.cookie('i', 5); // session cookie
@@ -197,6 +197,45 @@ router0.post('/blog/delete', async (request, response) => {
         return;
     }
     response.cookie('i', 6); // session cookie
+    response.redirect(referer);
+});
+router0.post('/blog/edit', async (request, response) => {
+    const referer = request.get('referer');
+    let id = request.body.id;
+    let text = request.body.text;
+
+    if (!id) {
+        response.cookie('i', 5); // session cookie
+        response.redirect(referer);
+        return;
+    }
+    if (!text) {
+        response.cookie('i', 1); // session cookie
+        response.redirect(referer);
+        return;
+    }
+
+    let data = JSON.stringify({ id, text });
+    let config = {
+        method: 'patch',
+        maxBodyLength: Infinity,
+        url: 'http://localhost:3333/api/posts',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${request.cookies.JWT}`
+        },
+        data: data
+    };
+    let axiosResponse;
+    try {
+        axiosResponse = await axios.request(config);
+    } catch (error) {
+        axiosErrorLog(error);
+        response.cookie('i', 2); // session cookie
+        response.redirect(referer);
+        return;
+    }
+    response.cookie('i', 7); // session cookie
     response.redirect(referer);
 });
 
@@ -305,8 +344,8 @@ router0.get('/style.css', (request, response) => {
     response.html(200, result, 'text/css');
 });
 
-router0.get('/date-formatter.js', (request, response) => {
-    let result = readStatic('./static/date-formatter.js');
+router0.get('/script.js', (request, response) => {
+    let result = readStatic('./static/script.js');
     response.html(200, result, 'text/javascript');
 });
 
