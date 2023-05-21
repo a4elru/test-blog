@@ -3,6 +3,7 @@
 const express = require('express');
 const htmlResponse = require('../middleware/html-response');
 const cookieParser = require('cookie-parser');
+const iC = require('../resources/info-cookie');
 
 const axios = require('axios');
 const fs = require('fs');
@@ -29,7 +30,7 @@ router0.get('/blog', async (request, response) => {
         return;
     }
 
-    if (request.query.p === undefined) {
+    if (!request.query.p) {
         response.redirect('?p=1');
         return;
     }
@@ -61,36 +62,11 @@ router0.get('/blog', async (request, response) => {
     let posts = axiosResponse.data.posts;
 
     let formPublish = readStatic('./static/form-publish.html');
-    response.cookie('i', '', { expires: new Date(0) }); // remove cookie
-    switch (request.cookies.i) {
-    case undefined:
-        formPublish = formPublish.replace('${info}', '');
-        break;
-    case '1':
-        formPublish = formPublish.replace('${info}', '<br><br><a>Пост не должен быть пустым.</a>');
-        break;
-    case '2':
-        formPublish = formPublish.replace('${info}', '<br><br><a>Внутренняя ошибка.</a>');
-        break;
-    case '3':
-        formPublish = formPublish.replace('${info}', '<br><br><a>Пост опубликован.</a>');
-        break;
-    case '4':
-        formPublish = formPublish.replace('${info}', '<br><br><a>Ошибка удаления.</a>');
-        break;
-    case '5':
-        formPublish = formPublish.replace('${info}', '<br><br><a>Неверный идентификатор поста.</a>');
-        break;
-    case '6':
-        formPublish = formPublish.replace('${info}', '<br><br><a>Пост удалён.</a>');
-        break;
-    case '7':
-        formPublish = formPublish.replace('${info}', '<br><br><a>Пост обновлён.</a>');
-        break;
-    default:
-        formPublish = formPublish.replace('${info}', '<br><br><a>Непредвиденная ошибка.</a>');
-        break;
+
+    if (request.cookies.i) {
+        response.cookie('i', '', { httpOnly: true, expires: new Date(0) }); // remove cookie
     }
+    formPublish = formPublish.replace('${info}', iC.displayFromID[request.cookies.i]);
     formPublish = formPublish.replace('${username}', authorization.username);
 
     let body = '';
@@ -138,7 +114,7 @@ router0.post('/blog', async (request, response) => {
     let text = request.body.text;
 
     if (!text) {
-        response.cookie('i', 1); // session cookie
+        response.cookie('i', iC.EMPTY_TEXT_ERROR, { httpOnly: true }); // session cookie
         response.redirect(referer);
         return;
     }
@@ -159,19 +135,19 @@ router0.post('/blog', async (request, response) => {
         axiosResponse = await axios.request(config);
     } catch (error) {
         axiosErrorLog(error);
-        response.cookie('i', 2); // session cookie
+        response.cookie('i', iC.UNHANDLED_EXCEPTION_ERROR, { httpOnly: true }); // session cookie
         response.redirect(referer);
         return;
     }
-    response.cookie('i', 3); // session cookie
+    response.cookie('i', iC.POST_IS_PUBLISHED, { httpOnly: true }); // session cookie
     response.redirect(referer);
 });
 router0.post('/blog/delete', async (request, response) => {
     const referer = request.get('referer');
     const id = request.body.id;
 
-    if (!id) {
-        response.cookie('i', 5); // session cookie
+    if (!id || !/^\d+$/.test(id)) {
+        response.cookie('i', iC.UNKNOWN_ID_ERROR, { httpOnly: true }); // session cookie
         response.redirect(referer);
         return;
     }
@@ -192,11 +168,11 @@ router0.post('/blog/delete', async (request, response) => {
         axiosResponse = await axios.request(config);
     } catch (error) {
         axiosErrorLog(error);
-        response.cookie('i', 4); // session cookie
+        response.cookie('i', iC.UNHANDLED_EXCEPTION_ERROR, { httpOnly: true }); // session cookie
         response.redirect(referer);
         return;
     }
-    response.cookie('i', 6); // session cookie
+    response.cookie('i', iC.POST_IS_DELETED, { httpOnly: true }); // session cookie
     response.redirect(referer);
 });
 router0.post('/blog/edit', async (request, response) => {
@@ -204,13 +180,13 @@ router0.post('/blog/edit', async (request, response) => {
     let id = request.body.id;
     let text = request.body.text;
 
-    if (!id) {
-        response.cookie('i', 5); // session cookie
+    if (!id || !/^\d+$/.test(id)) {
+        response.cookie('i', iC.UNKNOWN_ID_ERROR, { httpOnly: true }); // session cookie
         response.redirect(referer);
         return;
     }
     if (!text) {
-        response.cookie('i', 1); // session cookie
+        response.cookie('i', iC.EMPTY_TEXT_ERROR, { httpOnly: true }); // session cookie
         response.redirect(referer);
         return;
     }
@@ -231,11 +207,11 @@ router0.post('/blog/edit', async (request, response) => {
         axiosResponse = await axios.request(config);
     } catch (error) {
         axiosErrorLog(error);
-        response.cookie('i', 2); // session cookie
+        response.cookie('i', iC.UNHANDLED_EXCEPTION_ERROR, { httpOnly: true }); // session cookie
         response.redirect(referer);
         return;
     }
-    response.cookie('i', 7); // session cookie
+    response.cookie('i', iC.POST_IS_UPDATED, { httpOnly: true }); // session cookie
     response.redirect(referer);
 });
 
