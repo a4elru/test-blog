@@ -347,4 +347,9 @@ function axiosErrorLog(error) {
     console.log(info);
 }
 
+router0.use((request, response) => {
+    let result = readStatic('./static/404.html');
+    response.html(404, result);
+})
+
 module.exports = router0;
