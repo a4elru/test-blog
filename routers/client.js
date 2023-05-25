@@ -20,11 +20,10 @@ router0.use((request, response, next) => {
 });
 
 router0.get('/blog', async (request, response) => {
-    const referer = request.get('referer');
-    let result = readStatic('./static/page.html');
+    let result = readTemplate('./templates/page.html');
 
     if (request.cookies.JWT === undefined) {
-        let body = readStatic('./static/form-go-to-auth.html');
+        let body = readTemplate('./templates/form-go-to-auth.html');
         result = result.replace('${body}', body);
         response.html(200, result);
         return;
@@ -46,13 +45,13 @@ router0.get('/blog', async (request, response) => {
         axiosResponse = await axios.request(config);
     } catch (error) {
         if (error.response.status === 401) {
-            let body = readStatic('./static/form-go-to-auth.html');
+            let body = readTemplate('./templates/form-go-to-auth.html');
             result = result.replace('${body}', body);
             response.html(200, result);
             return;
         } else {
             axiosErrorLog(error);
-            let result = readStatic('./static/500.html');
+            let result = readTemplate('./templates/500.html');
             response.html(500, result);
             return;
         }
@@ -61,7 +60,7 @@ router0.get('/blog', async (request, response) => {
     const authorization = axiosResponse.data.authorization;
     let posts = axiosResponse.data.posts;
 
-    let formPublish = readStatic('./static/form-publish.html');
+    let formPublish = readTemplate('./templates/form-publish.html');
 
     if (request.cookies.i) {
         response.cookie('i', '', { httpOnly: true, expires: new Date(0) }); // remove cookie
@@ -70,10 +69,10 @@ router0.get('/blog', async (request, response) => {
     formPublish = formPublish.replace('${username}', authorization.username);
 
     let body = '';
-    let formPost = readStatic('./static/form-post.html');
-    let formPostWithButtons = readStatic('./static/form-post-with-buttons.html');
+    let formPost = readTemplate('./templates/form-post.html');
+    let formPostWithButtons = readTemplate('./templates/form-post-with-buttons.html');
     if (posts.length > 0) {
-        body += '<script type="text/javascript" src="script.js"></script>';
+        body += '<script type="text/javascript" src="/static/script.js"></script>';
     }
     for (let i = 0; i < posts.length; i++) {
         let formCurrent;
@@ -92,7 +91,7 @@ dateToString(${posts[i].timestamp}))</script>`;
     }
     body = formPublish + body;
 
-    let formPagination = readStatic('./static/form-pagination.html');
+    let formPagination = readTemplate('./templates/form-pagination.html');
     let p = Number(request.query.p);
     if (p > 1) {
         formPagination = formPagination.replace('${prev}', `<a href="./blog?p=${p - 1}">предыдущая</a>`);
@@ -216,8 +215,8 @@ router0.post('/blog/edit', async (request, response) => {
 });
 
 router0.get('/log-in', async (request, response) => {
-    let result = readStatic('./static/page.html');
-    let body = readStatic('./static/form-log-in.html');
+    let result = readTemplate('./templates/page.html');
+    let body = readTemplate('./templates/form-log-in.html');
     if (request.query.e === undefined) {
         body = body.replace('${info}', '');
     } else {
@@ -261,8 +260,8 @@ router0.post('/log-in', async (request, response) => {
 });
 
 router0.get('/sign-up', async (request, response) => {
-    let result = readStatic('./static/page.html');
-    let body = readStatic('./static/form-sign-up.html');
+    let result = readTemplate('./templates/page.html');
+    let body = readTemplate('./templates/form-sign-up.html');
     if (request.query.i === undefined) {
         body = body.replace('${info}', '');
     } else if (request.query.i === '1') {
@@ -315,17 +314,7 @@ router0.get('/log-out', async (request, response) => {
     response.redirect('./blog');
 });
 
-router0.get('/style.css', (request, response) => {
-    let result = readStatic('./static/style.css');
-    response.html(200, result, 'text/css');
-});
-
-router0.get('/script.js', (request, response) => {
-    let result = readStatic('./static/script.js');
-    response.html(200, result, 'text/javascript');
-});
-
-function readStatic(filename) {
+function readTemplate(filename) {
     return fs
         .readFileSync(filename)
         .toString()
@@ -348,8 +337,8 @@ function axiosErrorLog(error) {
 }
 
 router0.use((request, response) => {
-    let result = readStatic('./static/404.html');
+    let result = readTemplate('./templates/404.html');
     response.html(404, result);
-})
+});
 
 module.exports = router0;

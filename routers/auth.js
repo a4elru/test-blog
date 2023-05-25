@@ -68,6 +68,6 @@ router0.post('/new', async (request, response) => {
 
 router0.use((request, response) => {
     response.envelope(404, {});
-})
+});
 
 module.exports = router0;
