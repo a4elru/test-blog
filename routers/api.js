@@ -65,7 +65,8 @@ router0.post('/posts', async (request, response) => {
     const post = [
         Date.now(),
         request.isAuthenticated.id,
-        request.body.text
+        request.body.text,
+        request.body.linkedImage,
     ];
     let ok;
     try {
@@ -117,7 +118,8 @@ router0.delete('/posts' , async (request, response) => {
         return;
     }
     if (ok) {
-        response.envelope(200, { message: 'Delete successful.' });
+        let linked_image = post.linked_image;
+        response.envelope(200, { message: 'Delete successful.', linked_image });
     } else {
         response.envelope(500, { message: 'Delete error.' });
     }

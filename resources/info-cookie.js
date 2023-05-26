@@ -7,6 +7,7 @@ mnemo_to_text.UNKNOWN_ID_ERROR = '<br><br><a>Некорректный идент
 mnemo_to_text.POST_IS_PUBLISHED = '<br><br><a>Пост опубликован.</a>';
 mnemo_to_text.POST_IS_DELETED = '<br><br><a>Пост удалён.</a>';
 mnemo_to_text.POST_IS_UPDATED = '<br><br><a>Пост обновлён.</a>';
+mnemo_to_text.ONLY_JPEG_ALLOWED_ERROR = '<br><br><a>Разрешается прикреплять только изображения типа JPG/JPEG.</a>';
 
 const mnemo_to_id = {};
 let new_id = 1;

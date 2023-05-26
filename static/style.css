@@ -4,6 +4,12 @@
     font-family: "Roboto", sans-serif;    
   }
 
+/* Изображение*/
+  .postImage {
+    width: 100%;
+    margin: 0 0 5px 0;
+  }
+
 /* Затенения и центровка прямоугольника формы */
   .pane {
     width: 500px;
@@ -43,7 +49,6 @@
 
 /* Оформление кнопок */
   .button {
-    text-transform: uppercase;
     outline: 0;
     background: #4CAF50;
     width: 100%;
@@ -51,8 +56,6 @@
     padding: 15px;
     color: #FFFFFF;
     font-size: 16px;
-    -webkit-transition: all 0.3 ease;
-    transition: all 0.3 ease;
     cursor: pointer;
   }
   .button:hover,.form button:active,.form button:focus {

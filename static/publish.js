@@ -1,0 +1,1 @@
+function chooseFile(){var e=document.getElementById("input_file");let t=document.getElementById("button_file");e.click(),e.addEventListener("change",e=>{t.value=e.target.files[0].name})}

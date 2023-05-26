@@ -31,7 +31,8 @@ CREATE TABLE IF NOT EXISTS posts (
     id SERIAL PRIMARY KEY,
     timestamp BIGINT NOT NULL,
     userId BIGINT REFERENCES users(id),
-    text TEXT NOT NULL
+    text TEXT NOT NULL,
+    linkedImage TEXT DEFAULT NULL
 )`;
 queries.dropTableIE_posts = `
 DROP TABLE IF EXISTS posts`;
@@ -41,9 +42,16 @@ INSERT INTO posts(
 ) VALUES (
     $1::bigint, $2::integer, $3::text
 )`;
+queries.insert_post_with_image = `
+INSERT INTO posts(
+    timestamp, userId, text, linkedImage
+) VALUES (
+    $1::bigint, $2::integer, $3::text, $4::text
+)`;
 queries.delete_post = `
 DELETE FROM posts
 WHERE id=$1::integer AND userId=$2::integer
+RETURNING linkedImage as linked_image
 `;
 queries.update_post = `
 UPDATE posts
@@ -52,7 +60,7 @@ WHERE id=$2::integer AND userId=$3::integer
 `;
 const post = `
 SELECT posts.id, posts.timestamp, posts.userId as user_id,
-       users.username, posts.text
+       users.username, posts.text, posts.linkedImage as linked_image
 `;
 queries.get_post_by_id = post + `
 FROM posts

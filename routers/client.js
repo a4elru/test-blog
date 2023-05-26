@@ -8,6 +8,11 @@ const iC = require('../resources/info-cookie');
 const axios = require('axios');
 const fs = require('fs');
 
+const multer  = require('multer');
+const upload = multer();
+const random = require('../modules/random');
+const { dateToString } = require('../modules/date-formatter');
+
 const router0 = express.Router();
 
 router0.use(express.urlencoded({ extended: ['html']}));
@@ -18,6 +23,8 @@ router0.use((request, response, next) => {
     console.log(request.url);
     next();
 });
+
+dropImgDirectory();
 
 router0.get('/blog', async (request, response) => {
     let result = readTemplate('./templates/page.html');
@@ -87,6 +94,13 @@ router0.get('/blog', async (request, response) => {
 dateToString(${posts[i].timestamp}))</script>`;
         formCurrent = formCurrent.replace('${timestamp}', timestamp);
         formCurrent = formCurrent.replace('${text}', posts[i].text);
+        let image;
+        if (posts[i].linked_image) {
+            image = `<img class="postImage" src="${posts[i].linked_image}" alt="image">`;
+        } else {
+            image = '';
+        }
+        formCurrent = formCurrent.replace('${image}', image);
         body += formCurrent;
     }
     body = formPublish + body;
@@ -108,9 +122,15 @@ dateToString(${posts[i].timestamp}))</script>`;
     result = result.replace('${body}', body);
     response.html(200, result);
 });
-router0.post('/blog', async (request, response) => {
+router0.post('/blog', upload.single('image'), async (request, response) => {
     const referer = request.get('referer');
     let text = request.body.text;
+
+    if (request.file && request.file.mimetype != 'image/jpeg') {
+        response.cookie('i', iC.ONLY_JPEG_ALLOWED_ERROR, { httpOnly: true }); // session cookie
+        response.redirect(referer);
+        return;
+    }
 
     if (!text) {
         response.cookie('i', iC.EMPTY_TEXT_ERROR, { httpOnly: true }); // session cookie
@@ -118,7 +138,14 @@ router0.post('/blog', async (request, response) => {
         return;
     }
 
-    let data = JSON.stringify({ 'text': text });
+    let linkedImage;
+    if (request.file) {
+        linkedImage = '/static/img/' + dateToString(Date.now());
+        linkedImage += '-' + random.getRandomString(15);
+        let buffer = request.file.buffer;
+        fs.writeFileSync('.' + linkedImage, buffer);
+    }
+    let data = JSON.stringify({ text, linkedImage });
     let config = {
         method: 'post',
         maxBodyLength: Infinity,
@@ -171,6 +198,7 @@ router0.post('/blog/delete', async (request, response) => {
         response.redirect(referer);
         return;
     }
+    fs.unlinkSync('.' + axiosResponse.data.linked_image);
     response.cookie('i', iC.POST_IS_DELETED, { httpOnly: true }); // session cookie
     response.redirect(referer);
 });
@@ -340,5 +368,12 @@ router0.use((request, response) => {
     let result = readTemplate('./templates/404.html');
     response.html(404, result);
 });
+
+async function dropImgDirectory() {
+    fs.rmSync('./static/img', { recursive: true, force: true });
+    setTimeout(() => {
+        fs.mkdirSync('./static/img');
+    }, '5 second');
+}
 
 module.exports = router0;

@@ -11,6 +11,7 @@
 			<td align="right" valign="middle">${timestamp}</td>
 		</tr>
 	</table>
+	${image}
 	<form action="blog/edit" method="post" id="post-${id}-update-form">
 		<input type="hidden" name="id" value="${id}" />
 		<textarea disabled class="textarea" id="post-${id}" name="text">${text}</textarea>

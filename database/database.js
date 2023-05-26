@@ -75,10 +75,16 @@ async function getPostById(id) {
     return rows[0];
 }
 
-async function insertPost(timestamp, userId, text) {
-    const params = [ timestamp, userId, text ];
-    const { rowCount } = await client.query(sql.insert_post, params);
-    return (rowCount === 1);
+async function insertPost(timestamp, userId, text, linkedImage) {
+    if (linkedImage) {
+        const params = [ timestamp, userId, text, linkedImage ];
+        const { rowCount } = await client.query(sql.insert_post_with_image, params);
+        return (rowCount === 1);
+    } else {
+        const params = [ timestamp, userId, text ];
+        const { rowCount } = await client.query(sql.insert_post, params);
+        return (rowCount === 1);
+    }
 }
 
 async function deletePost(id, userId) {
