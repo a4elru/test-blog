@@ -5,6 +5,14 @@ const envelopeResponse = require('../middleware/envelope-response');
 const authJWT = require('../middleware/auth-jwt');
 const db = require('../database/database');
 
+const fs  = require('fs');
+const multer  = require('multer');
+const upload = multer();
+const random = require('../modules/random');
+const { dateToString } = require('../modules/date-formatter');
+
+dropImgDirectory();
+
 const router0 = express.Router();
 
 router0.use(express.json()); // request.body
@@ -57,16 +65,24 @@ router0.get(/^\/posts\/\d+$/ , async (request, response) => {
     response.envelope(200, { authorization, post });
 });
 
-router0.post('/posts', async (request, response) => {
+router0.post('/posts', upload.single('image'), async (request, response) => {
     if (!request.body.text) {
         response.envelope(400, { message: 'Post must not be empty.' });
         return;
+    }
+    let linkedImage;
+    console.log(request.file);
+    if (request.file) {
+        linkedImage = '/service/static/img/' + dateToString(Date.now());
+        linkedImage += '-' + random.getRandomString(15);
+        let buffer = request.file.buffer;
+        fs.writeFileSync('.' + linkedImage, buffer);
     }
     const post = [
         Date.now(),
         request.isAuthenticated.id,
         request.body.text,
-        request.body.linkedImage,
+        linkedImage,
     ];
     let ok;
     try {
@@ -118,10 +134,12 @@ router0.delete('/posts' , async (request, response) => {
         return;
     }
     if (ok) {
-        let linked_image = post.linked_image;
-        response.envelope(200, { message: 'Delete successful.', linked_image });
+        response.envelope(200, { message: 'Delete successful.' });
     } else {
         response.envelope(500, { message: 'Delete error.' });
+    }
+    if (post.linked_image) {
+        fs.unlinkSync('.' + post.linked_image);
     }
 });
 
@@ -170,5 +188,12 @@ router0.patch('/posts' , async (request, response) => {
 router0.use((request, response) => {
     response.envelope(404, {});
 });
+
+async function dropImgDirectory() {
+    fs.rmSync('./service/static/img', { recursive: true, force: true });
+    setTimeout(() => {
+        fs.mkdirSync('./service/static/img');
+    }, '5 second');
+}
 
 module.exports = router0;

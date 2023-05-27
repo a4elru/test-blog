@@ -11,20 +11,23 @@
 Клиентская часть взаимодействует с API через http-запросы.
 
 Страницы:
-- /client/blog - блог
-- /client/sign-up - регистрация
-- /client/log-in - вход
+- /client/client/blog - блог
+- /client/client/sign-up - регистрация
+- /client/client/log-in - вход
 
 Статьи блога недоступны для просмотра неавторизованным пользователям.
 
 # Endpoints API
 
-## 1. POST /auth/new - регистрация
+Наличие заголовка `Content-Type` предполагает наличие корректного заголовка `Content-Length`.
+
+## 1. POST /service/auth/new - регистрация
 
 Запрос:
 
 ```http
-POST /auth/new HTTP/1.1
+POST /service/auth/new HTTP/1.1
+Content-Type: application/json
 {
     "login": "{login}",
     "password": "{password}",
@@ -36,17 +39,19 @@ POST /auth/new HTTP/1.1
 
 ```http
 200 OK
+Content-Type: application/json
 {
     "message": "Account created successful."
 }
 ```
 
-## 2. POST /auth - аутентификация
+## 2. POST /service/auth - аутентификация
 
 Запрос:
 
 ```http
-POST /auth HTTP/1.1
+POST /service/auth HTTP/1.1
+Content-Type: application/json
 {
     "login": "{login}",
     "password": "{password}"
@@ -57,17 +62,18 @@ POST /auth HTTP/1.1
 
 ```http
 200 OK
+Content-Type: application/json
 {
     "access_token": "{access_token}"
 }
 ```
 
-## 3. GET /auth - проверка авторизации
+## 3. GET /service/auth - проверка авторизации
 
 Запрос:
 
 ```http
-GET /auth HTTP/1.1
+GET /service/auth HTTP/1.1
 Authorization: Bearer {access_token}
 ```
 
@@ -75,17 +81,18 @@ Authorization: Bearer {access_token}
 
 ```http
 200 OK
+Content-Type: application/json
 {
     "message": "Authorized as \"{login}\""
 }
 ```
 
-## 4. GET /api/posts?p={page} - доступ к статьям блога
+## 4. GET /service/api/posts?p={page} - доступ к статьям блога
 
 Запрос:
 
 ```http
-GET /api/posts?p=1 HTTP/1.1
+GET /service/api/posts?p={page} HTTP/1.1
 Authorization: Bearer {access_token}
 ```
 
@@ -93,6 +100,7 @@ Authorization: Bearer {access_token}
 
 ```http
 200 OK
+Content-Type: application/json
 {
     "authorization": {
         "user_id": "{your user id}",
@@ -105,6 +113,7 @@ Authorization: Bearer {access_token}
             "user_id": "1"
             "username": "BEE"
             "text": "Post number 5.",
+            "linked_image": "/service/static/img/{filename 1}"
         },
         ...
         {
@@ -113,17 +122,18 @@ Authorization: Bearer {access_token}
             "user_id": "1"
             "username": "BEE"
             "text": "Post number 1.",
+            "linked_image": null
         }
     ]
 }
 ```
 
-## 5. GET /api/posts/1 - доступ к статье по ID
+## 5. GET /service/api/posts/{post_id} - доступ к статье по ID
 
 Запрос:
 
 ```http
-GET /api/posts/{post_id} HTTP/1.1
+GET /service/api/posts/{post_id} HTTP/1.1
 Authorization: Bearer {access_token}
 ```
 
@@ -131,48 +141,63 @@ Authorization: Bearer {access_token}
 
 ```http
 200 OK
+Content-Type: application/json
 {
     "authorization": {
-        "user_id": {your user id},
-        "username": {your username}
+        "user_id": "{your user id}",
+        "username": "{your username}"
     },
     "post": {
-            "id": {post_id},
+            "id": "{post_id}",
             "timestamp": "1684009212989",
             "user_id": "1"
             "username": "BEE"
-            "text": "Post number 1.",
+            "text": "Post number.",
+            "linked_image": null
     }
 }
 ```
 
-## 6. POST /api/posts - публикация статьи
+## 6. POST /service/api/posts - публикация статьи
+
+Отправлять файл необязательно.
 
 Запрос:
 
 ```http
-POST /api/posts HTTP/1.1
+POST /service/api/posts HTTP/1.1
 Authorization: Bearer {access_token}
-{
-    "text": "{text}"
-}
+Content-Type: multipart/form-data; boundary=BOUNDARY
+
+--BOUNDARY
+Content-Disposition: form-data; name="text"
+
+{text}
+--BOUNDARY
+Content-Disposition: form-data; name="image"; filename="image.jpg"
+Content-Type: image/jpeg
+
+{binary data}
+--BOUNDARY--
+
 ```
 
 Ответ в случае успеха:
 
 ```http
 201 Created
+Content-Type: application/json
 {
     "message": "Post publicated."
 }
 ```
 
-## 7. DELETE /api/posts - удаление статьи
+## 7. DELETE /service/api/posts - удаление статьи
 
 Запрос:
 
 ```http
-DELETE /api/posts HTTP/1.1
+DELETE /service/api/posts HTTP/1.1
 Authorization: Bearer {access_token}
 {
     "id": "{id}"
@@ -188,13 +213,14 @@ Authorization: Bearer {access_token}
 }
 ```
 
-## 8. PATCH /api/posts - обновление текста статьи
+## 8. PATCH /service/api/posts - обновление текста статьи
 
 Запрос:
 
 ```http
-UPDATE /api/posts HTTP/1.1
+UPDATE /service/api/posts HTTP/1.1
 Authorization: Bearer {access_token}
+Content-Type: application/json
 {
     "id": "{id}",
     "text": "{text}"
@@ -205,6 +231,7 @@ Authorization: Bearer {access_token}
 
 ```http
 200 OK
+Content-Type: application/json
 {
     "message": "Update successful."
 }

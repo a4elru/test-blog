@@ -1,6 +1,6 @@
 node_modules
 yarn.lock
 
-client/static/img
+service/static/img
 
 todo.txt

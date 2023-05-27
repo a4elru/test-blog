@@ -7,20 +7,17 @@ const iC = require('../resources/info-cookie');
 
 const axios = require('axios');
 const fs = require('fs');
+const formData = require('form-data');
 const TEMPLATES_DIR = './client/templates';
 
 const multer  = require('multer');
 const upload = multer();
-const random = require('../modules/random');
-const { dateToString } = require('../modules/date-formatter');
 
 const router0 = express.Router();
 
 router0.use(express.urlencoded({ extended: ['html']}));
 router0.use(htmlResponse());
 router0.use(cookieParser());
-
-dropImgDirectory();
 
 router0.get('/blog', async (request, response) => {
     let result = readTemplate(TEMPLATES_DIR + '/page.html');
@@ -134,29 +131,35 @@ router0.post('/blog', upload.single('image'), async (request, response) => {
         return;
     }
 
-    let linkedImage;
+    const data = new formData();
+    data.append('text', text);
+    console.log('request.file');
+    console.log(request.file);
+    console.log('request.file');
     if (request.file) {
-        linkedImage = '/client/static/img/' + dateToString(Date.now());
-        linkedImage += '-' + random.getRandomString(15);
-        let buffer = request.file.buffer;
-        fs.writeFileSync('.' + linkedImage, buffer);
+        const options = {
+            contentType: 'image/jpeg',
+            filename: request.file.originalname,
+        };
+        data.append('image', request.file.buffer, options);
     }
-    let data = JSON.stringify({ text, linkedImage });
+    console.log('data');
+    console.log(data);
+    console.log('data');
+    const headers = data.getHeaders();
+    headers.authorization = `Bearer ${request.cookies.JWT}`;
     let config = {
         method: 'post',
         maxBodyLength: Infinity,
         url: 'http://localhost:3333/service/api/posts',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${request.cookies.JWT}`
-        },
-        data: data
+        headers: headers,
+        data: data,
     };
     let axiosResponse;
     try {
         axiosResponse = await axios.request(config);
     } catch (error) {
-        axiosErrorLog(error);
+        console.log(error);
         response.cookie('i', iC.UNHANDLED_EXCEPTION_ERROR, { httpOnly: true }); // session cookie
         response.redirect(referer);
         return;
@@ -194,7 +197,6 @@ router0.post('/blog/delete', async (request, response) => {
         response.redirect(referer);
         return;
     }
-    fs.unlinkSync('.' + axiosResponse.data.linked_image);
     response.cookie('i', iC.POST_IS_DELETED, { httpOnly: true }); // session cookie
     response.redirect(referer);
 });
@@ -364,12 +366,5 @@ router0.use((request, response) => {
     let result = readTemplate(TEMPLATES_DIR + '/404.html');
     response.html(404, result);
 });
-
-async function dropImgDirectory() {
-    fs.rmSync('./client/static/img', { recursive: true, force: true });
-    setTimeout(() => {
-        fs.mkdirSync('./client/static/img');
-    }, '5 second');
-}
 
 module.exports = router0;
