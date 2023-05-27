@@ -1,5 +1,4 @@
 {
-  "ignorePatterns": ["/static/*.js"],
   "env": {
     "node": true,
     "es2017": true
@@ -12,5 +11,6 @@
     "no-mixed-spaces-and-tabs": ["error"],
     "indent": ["error", 4],
     "semi": ["error"]
-  }
+  },
+  "ignorePatterns": ["/client/static/*.js"]
 }

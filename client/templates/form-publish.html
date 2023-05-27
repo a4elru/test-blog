@@ -1,11 +1,11 @@
 <form enctype="multipart/form-data" class="pane" method="POST">
 	<h2>Вы вошли как <i>${username}</i></h2>
 	<a>Опубликуйте пост, и его увидят все пользователи этого блога.</a>
-	<script type="text/javascript" src="/static/publish.js"></script>
+	<script type="text/javascript" src="../static/publish.js"></script>
 	<input hidden type="file" name="image" accept="image/jpeg" id="input_file">
 	<br><br><input id="button_file" type="button" class="button" value="Прикрепить картинку" onclick="chooseFile()" /><br><br>
 	<textarea class="textarea" name="text"></textarea><br><br>
 	<input type="submit" class="button" value="Опубликовать" />
-	<br><br><a href="/client/log-out">Выйти из аккаунта</a>
+	<br><br><a href="log-out">Выйти из аккаунта</a>
 	${info}
 </form>

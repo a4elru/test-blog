@@ -9,6 +9,6 @@ const options = {
     extensions: ['*'],
 };
 
-router0.use(express.static('./static', options));
+router0.use(express.static('./client/static', options));
 
 module.exports = router0;

@@ -7,6 +7,7 @@ const iC = require('../resources/info-cookie');
 
 const axios = require('axios');
 const fs = require('fs');
+const TEMPLATES_DIR = './client/templates';
 
 const multer  = require('multer');
 const upload = multer();
@@ -19,18 +20,13 @@ router0.use(express.urlencoded({ extended: ['html']}));
 router0.use(htmlResponse());
 router0.use(cookieParser());
 
-router0.use((request, response, next) => {
-    console.log(request.url);
-    next();
-});
-
 dropImgDirectory();
 
 router0.get('/blog', async (request, response) => {
-    let result = readTemplate('./templates/page.html');
+    let result = readTemplate(TEMPLATES_DIR + '/page.html');
 
     if (request.cookies.JWT === undefined) {
-        let body = readTemplate('./templates/form-go-to-auth.html');
+        let body = readTemplate(TEMPLATES_DIR + '/form-go-to-auth.html');
         result = result.replace('${body}', body);
         response.html(200, result);
         return;
@@ -44,7 +40,7 @@ router0.get('/blog', async (request, response) => {
     let config = {
         method: 'get',
         maxBodyLength: Infinity,
-        url: `http://localhost:3333/api/posts?p=${request.query.p}`,
+        url: `http://localhost:3333/service/api/posts?p=${request.query.p}`,
         headers: { 'Authorization': `Bearer ${request.cookies.JWT}` }
     };
     let axiosResponse;
@@ -52,13 +48,13 @@ router0.get('/blog', async (request, response) => {
         axiosResponse = await axios.request(config);
     } catch (error) {
         if (error.response.status === 401) {
-            let body = readTemplate('./templates/form-go-to-auth.html');
+            let body = readTemplate(TEMPLATES_DIR + '/form-go-to-auth.html');
             result = result.replace('${body}', body);
             response.html(200, result);
             return;
         } else {
             axiosErrorLog(error);
-            let result = readTemplate('./templates/500.html');
+            let result = readTemplate(TEMPLATES_DIR + '/500.html');
             response.html(500, result);
             return;
         }
@@ -67,7 +63,7 @@ router0.get('/blog', async (request, response) => {
     const authorization = axiosResponse.data.authorization;
     let posts = axiosResponse.data.posts;
 
-    let formPublish = readTemplate('./templates/form-publish.html');
+    let formPublish = readTemplate(TEMPLATES_DIR + '/form-publish.html');
 
     if (request.cookies.i) {
         response.cookie('i', '', { httpOnly: true, expires: new Date(0) }); // remove cookie
@@ -76,10 +72,10 @@ router0.get('/blog', async (request, response) => {
     formPublish = formPublish.replace('${username}', authorization.username);
 
     let body = '';
-    let formPost = readTemplate('./templates/form-post.html');
-    let formPostWithButtons = readTemplate('./templates/form-post-with-buttons.html');
+    let formPost = readTemplate(TEMPLATES_DIR + '/form-post.html');
+    let formPostWithButtons = readTemplate(TEMPLATES_DIR + '/form-post-with-buttons.html');
     if (posts.length > 0) {
-        body += '<script type="text/javascript" src="/static/script.js"></script>';
+        body += '<script type="text/javascript" src="../static/script.js"></script>';
     }
     for (let i = 0; i < posts.length; i++) {
         let formCurrent;
@@ -105,7 +101,7 @@ dateToString(${posts[i].timestamp}))</script>`;
     }
     body = formPublish + body;
 
-    let formPagination = readTemplate('./templates/form-pagination.html');
+    let formPagination = readTemplate(TEMPLATES_DIR + '/form-pagination.html');
     let p = Number(request.query.p);
     if (p > 1) {
         formPagination = formPagination.replace('${prev}', `<a href="./blog?p=${p - 1}">предыдущая</a>`);
@@ -140,7 +136,7 @@ router0.post('/blog', upload.single('image'), async (request, response) => {
 
     let linkedImage;
     if (request.file) {
-        linkedImage = '/static/img/' + dateToString(Date.now());
+        linkedImage = '/client/static/img/' + dateToString(Date.now());
         linkedImage += '-' + random.getRandomString(15);
         let buffer = request.file.buffer;
         fs.writeFileSync('.' + linkedImage, buffer);
@@ -149,7 +145,7 @@ router0.post('/blog', upload.single('image'), async (request, response) => {
     let config = {
         method: 'post',
         maxBodyLength: Infinity,
-        url: 'http://localhost:3333/api/posts',
+        url: 'http://localhost:3333/service/api/posts',
         headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${request.cookies.JWT}`
@@ -182,7 +178,7 @@ router0.post('/blog/delete', async (request, response) => {
     let config = {
         method: 'delete',
         maxBodyLength: Infinity,
-        url: 'http://localhost:3333/api/posts',
+        url: 'http://localhost:3333/service/api/posts',
         headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${request.cookies.JWT}`
@@ -222,7 +218,7 @@ router0.post('/blog/edit', async (request, response) => {
     let config = {
         method: 'patch',
         maxBodyLength: Infinity,
-        url: 'http://localhost:3333/api/posts',
+        url: 'http://localhost:3333/service/api/posts',
         headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${request.cookies.JWT}`
@@ -243,8 +239,8 @@ router0.post('/blog/edit', async (request, response) => {
 });
 
 router0.get('/log-in', async (request, response) => {
-    let result = readTemplate('./templates/page.html');
-    let body = readTemplate('./templates/form-log-in.html');
+    let result = readTemplate(TEMPLATES_DIR + '/page.html');
+    let body = readTemplate(TEMPLATES_DIR + '/form-log-in.html');
     if (request.query.e === undefined) {
         body = body.replace('${info}', '');
     } else {
@@ -269,7 +265,7 @@ router0.post('/log-in', async (request, response) => {
     let config = {
         method: 'post',
         maxBodyLength: Infinity,
-        url: 'http://localhost:3333/auth',
+        url: 'http://localhost:3333/service/auth',
         headers: { 'Content-Type': 'application/json' },
         data: data
     };
@@ -288,8 +284,8 @@ router0.post('/log-in', async (request, response) => {
 });
 
 router0.get('/sign-up', async (request, response) => {
-    let result = readTemplate('./templates/page.html');
-    let body = readTemplate('./templates/form-sign-up.html');
+    let result = readTemplate(TEMPLATES_DIR + '/page.html');
+    let body = readTemplate(TEMPLATES_DIR + '/form-sign-up.html');
     if (request.query.i === undefined) {
         body = body.replace('${info}', '');
     } else if (request.query.i === '1') {
@@ -322,7 +318,7 @@ router0.post('/sign-up', async (request, response) => {
     let config = {
         method: 'post',
         maxBodyLength: Infinity,
-        url: 'http://localhost:3333/auth/new',
+        url: 'http://localhost:3333/service/auth/new',
         headers: { 'Content-Type': 'application/json' },
         data: data
     };
@@ -365,14 +361,14 @@ function axiosErrorLog(error) {
 }
 
 router0.use((request, response) => {
-    let result = readTemplate('./templates/404.html');
+    let result = readTemplate(TEMPLATES_DIR + '/404.html');
     response.html(404, result);
 });
 
 async function dropImgDirectory() {
-    fs.rmSync('./static/img', { recursive: true, force: true });
+    fs.rmSync('./client/static/img', { recursive: true, force: true });
     setTimeout(() => {
-        fs.mkdirSync('./static/img');
+        fs.mkdirSync('./client/static/img');
     }, '5 second');
 }
 
