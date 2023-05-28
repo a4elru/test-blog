@@ -122,7 +122,6 @@ Content-Type: application/json
             "user_id": "1"
             "username": "BEE"
             "text": "Post number 1.",
-            "linked_image": null
         }
     ]
 }
@@ -153,7 +152,6 @@ Content-Type: application/json
             "user_id": "1"
             "username": "BEE"
             "text": "Post number.",
-            "linked_image": null
     }
 }
 ```

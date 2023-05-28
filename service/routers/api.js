@@ -71,7 +71,6 @@ router0.post('/posts', upload.single('image'), async (request, response) => {
         return;
     }
     let linkedImage;
-    console.log(request.file);
     if (request.file) {
         linkedImage = '/service/static/img/' + dateToString(Date.now());
         linkedImage += '-' + random.getRandomString(15);

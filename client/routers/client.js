@@ -133,9 +133,6 @@ router0.post('/blog', upload.single('image'), async (request, response) => {
 
     const data = new formData();
     data.append('text', text);
-    console.log('request.file');
-    console.log(request.file);
-    console.log('request.file');
     if (request.file) {
         const options = {
             contentType: 'image/jpeg',
@@ -143,9 +140,6 @@ router0.post('/blog', upload.single('image'), async (request, response) => {
         };
         data.append('image', request.file.buffer, options);
     }
-    console.log('data');
-    console.log(data);
-    console.log('data');
     const headers = data.getHeaders();
     headers.authorization = `Bearer ${request.cookies.JWT}`;
     let config = {

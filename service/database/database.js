@@ -67,12 +67,22 @@ async function getPostsByPage(pageNumber) {
     const limit = PAGINATION_SIZE;
     const params = [ limit, offset ];
     const { rows } = await client.query(sql.get_posts_by_page, params);
+    await propertyNullToUndefined('linked_image', rows);
     return rows;
 }
 
 async function getPostById(id) {
     const { rows } = await client.query(sql.get_post_by_id, [ id ]);
+    await propertyNullToUndefined('linked_image', rows);
     return rows[0];
+}
+
+async function propertyNullToUndefined(property, rows) {
+    for(let post of rows) {
+        if (post[property] === null) {
+            post[property] = undefined;
+        }
+    }
 }
 
 async function insertPost(timestamp, userId, text, linkedImage) {
