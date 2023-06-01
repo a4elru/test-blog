@@ -125,8 +125,8 @@ router0.post('/blog', upload.single('image'), async (request, response) => {
         return;
     }
 
-    if (!text) {
-        response.cookie('i', iC.EMPTY_TEXT_ERROR, { httpOnly: true }); // session cookie
+    if (!text && !request.file) {
+        response.cookie('i', iC.EMPTY_POST_ERROR, { httpOnly: true }); // session cookie
         response.redirect(referer);
         return;
     }
@@ -204,11 +204,6 @@ router0.post('/blog/edit', async (request, response) => {
         response.redirect(referer);
         return;
     }
-    if (!text) {
-        response.cookie('i', iC.EMPTY_TEXT_ERROR, { httpOnly: true }); // session cookie
-        response.redirect(referer);
-        return;
-    }
 
     let data = JSON.stringify({ id, text });
     let config = {
@@ -225,6 +220,11 @@ router0.post('/blog/edit', async (request, response) => {
     try {
         axiosResponse = await axios.request(config);
     } catch (error) {
+        if (error.response.data.message == 'Text required.') {
+            response.cookie('i', iC.EMPTY_POST_ERROR, { httpOnly: true }); // session cookie
+            response.redirect(referer);
+            return;
+        }
         axiosErrorLog(error);
         response.cookie('i', iC.UNHANDLED_EXCEPTION_ERROR, { httpOnly: true }); // session cookie
         response.redirect(referer);

@@ -66,7 +66,7 @@ router0.get(/^\/posts\/\d+$/ , async (request, response) => {
 });
 
 router0.post('/posts', upload.single('image'), async (request, response) => {
-    if (!request.body.text) {
+    if (!request.body.text && !request.file) {
         response.envelope(400, { message: 'Post must not be empty.' });
         return;
     }
@@ -144,9 +144,9 @@ router0.delete('/posts' , async (request, response) => {
 
 router0.patch('/posts' , async (request, response) => {
     const id = request.body.id;
-    const text = request.body.text;
-    if (!id || !text) {
-        response.envelope(400, { message: 'Post id and text required.' });
+    const newText = request.body.text;
+    if (!id) {
+        response.envelope(400, { message: 'Post id required.' });
         return;
     }
     if (!/^\d+$/.test(id)) {
@@ -169,9 +169,13 @@ router0.patch('/posts' , async (request, response) => {
         response.envelope(403, { message: 'Forbidden.' });
         return;
     }
+    if (!newText && !post.linked_image) {
+        response.envelope(400, { message: 'Text required.' });
+        return;
+    }
     let ok;
     try {
-        ok = await db.updatePost(text, id, request.isAuthenticated.id);
+        ok = await db.updatePost(newText, id, request.isAuthenticated.id);
     } catch(error) {
         console.error(error);
         response.envelope(500);

@@ -10,6 +10,8 @@ const sql = require('./sql-queries');
 const { PG_CONFIG } = require('../params');
 const client = new Client(PG_CONFIG);
 
+// control functions
+
 async function initDatabase() {
     await client.connect();
 
@@ -22,23 +24,21 @@ async function initDatabase() {
 
         const users = require('./demo-users');
         for (let user of users) {
-            const params = [user.login, user.username, user.password];
-            await client.query(sql.insert_user, params);
+            insertUser(user.login, user.username, user.password);
         }
-
         const posts = require('./demo-posts');
         for (let post of posts) {
             const { rows } = await client.query(sql.get_user_by_login, [post.login]);
             const [ user ] = rows;
-            const params = [post.timestamp, user.id, post.text];
-            await client.query(sql.insert_post, params);
+            insertPost(post.timestamp, user.id, post.text);
         }
     }
 }
-
 async function closeDatabase() {
     await client.end();
 }
+
+// sql functions
 
 async function getUserById(id) {
     const { rows } = await client.query(sql.get_user_by_id, [ id ]);
@@ -77,24 +77,10 @@ async function getPostById(id) {
     return rows[0];
 }
 
-async function propertyNullToUndefined(property, rows) {
-    for(let post of rows) {
-        if (post[property] === null) {
-            post[property] = undefined;
-        }
-    }
-}
-
-async function insertPost(timestamp, userId, text, linkedImage) {
-    if (linkedImage) {
-        const params = [ timestamp, userId, text, linkedImage ];
-        const { rowCount } = await client.query(sql.insert_post_with_image, params);
-        return (rowCount === 1);
-    } else {
-        const params = [ timestamp, userId, text ];
-        const { rowCount } = await client.query(sql.insert_post, params);
-        return (rowCount === 1);
-    }
+async function insertPost(timestamp, userId, text, linkedImage = null) {
+    const params = [ timestamp, userId, text, linkedImage ];
+    const { rowCount } = await client.query(sql.insert_post, params);
+    return (rowCount === 1);
 }
 
 async function deletePost(id, userId) {
@@ -107,6 +93,16 @@ async function updatePost(text, id, userId) {
     const params = [ text, id, userId ];
     const { rowCount } = await client.query(sql.update_post, params);
     return (rowCount === 1);
+}
+
+// auxiliary functions
+
+async function propertyNullToUndefined(property, rows) {
+    for(let post of rows) {
+        if (post[property] === null) {
+            post[property] = undefined;
+        }
+    }
 }
 
 module.exports = {

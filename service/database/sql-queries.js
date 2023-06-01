@@ -21,7 +21,7 @@ INSERT INTO users(
 queries.get_user_by_login_and_password = `
 SELECT id, login, username FROM users WHERE login=$1::text AND password=$2::text`;
 queries.get_user_by_id = `
-SELECT id, login, username FROM users WHERE id=$1::integer`;
+SELECT id, login, username FROM users WHERE id=$1::bigint`;
 queries.get_user_by_login = `
 SELECT id, login, username FROM users WHERE login=$1::text`;
 
@@ -38,25 +38,18 @@ queries.dropTableIE_posts = `
 DROP TABLE IF EXISTS posts`;
 queries.insert_post = `
 INSERT INTO posts(
-    timestamp, userId, text
-) VALUES (
-    $1::bigint, $2::integer, $3::text
-)`;
-queries.insert_post_with_image = `
-INSERT INTO posts(
     timestamp, userId, text, linkedImage
 ) VALUES (
-    $1::bigint, $2::integer, $3::text, $4::text
+    $1::bigint, $2::bigint, $3::text, $4::text
 )`;
 queries.delete_post = `
 DELETE FROM posts
-WHERE id=$1::integer AND userId=$2::integer
-RETURNING linkedImage as linked_image
+WHERE id=$1::bigint AND userId=$2::bigint
 `;
 queries.update_post = `
 UPDATE posts
 SET text=$1::text
-WHERE id=$2::integer AND userId=$3::integer
+WHERE id=$2::bigint AND userId=$3::bigint
 `;
 const post = `
 SELECT posts.id, posts.timestamp, posts.userId as user_id,
@@ -65,13 +58,13 @@ SELECT posts.id, posts.timestamp, posts.userId as user_id,
 queries.get_post_by_id = post + `
 FROM posts
 JOIN users ON posts.userId = users.id
-WHERE posts.id=$1::integer;
+WHERE posts.id=$1::bigint;
 `;
 queries.get_posts_by_page = post + `
 FROM posts
 JOIN users ON posts.userId = users.id
 ORDER BY posts.id DESC
-LIMIT $1::integer OFFSET $2::integer;
+LIMIT $1::bigint OFFSET $2::bigint;
 `;
 
 Object.freeze(queries);

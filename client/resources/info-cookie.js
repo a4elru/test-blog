@@ -2,7 +2,7 @@
 
 const mnemo_to_text = {};
 mnemo_to_text.UNHANDLED_EXCEPTION_ERROR = '<br><br><a>Неизвестная ошибка.</a>';
-mnemo_to_text.EMPTY_TEXT_ERROR = '<br><br><a>Пост не должен быть пустым.</a>';
+mnemo_to_text.EMPTY_POST_ERROR = '<br><br><a>Пост не должен быть пустым.</a>';
 mnemo_to_text.UNKNOWN_ID_ERROR = '<br><br><a>Некорректный идентификатор поста.</a>';
 mnemo_to_text.POST_IS_PUBLISHED = '<br><br><a>Пост опубликован.</a>';
 mnemo_to_text.POST_IS_DELETED = '<br><br><a>Пост удалён.</a>';
