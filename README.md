@@ -6,6 +6,8 @@
 - выполните `npm start` или `yarn start`
 - перейдите на http://localhost:3333/
 
+![](README/example.png)
+
 # Endpoints client
 
 Клиентская часть взаимодействует с API через http-запросы.
